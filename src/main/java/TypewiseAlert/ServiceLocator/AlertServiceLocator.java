@@ -21,13 +21,9 @@ public class AlertServiceLocator implements IServiceLocator
         }
 
         IAlerter alertRef = new CreateInstance().createInstance(serviceName);
-        addServiceToList(alertRef);
+        services.add(alertRef);
         return alertRef;
 	}
-	
-	public void addServiceToList(IAlerter alertRef) {
-    	services.add(alertRef);
-    }
 	
 	IAlerter findAlerter(String alerter) {
 		return services.stream().filter(service -> service.getClass().getName().equalsIgnoreCase(alerter)).findFirst()
