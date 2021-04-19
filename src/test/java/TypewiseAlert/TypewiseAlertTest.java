@@ -10,7 +10,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
-import ServiceLocator.FakeServiceLocator;
+import ServiceLocator.AlertServiceLocator;
 import main.java.TypewiseAlert.BatteryCharacter;
 import main.java.TypewiseAlert.BreachType;
 import main.java.TypewiseAlert.CoolingType;
@@ -47,7 +47,7 @@ public class TypewiseAlertTest
 	public void initialize()
 	{
 		batteryCharacter = new BatteryCharacter().setCoolingType(type);
-		typewiseAlert = new TypewiseAlert(new FakeServiceLocator(fakeAlerter));
+		typewiseAlert = new TypewiseAlert(new AlertServiceLocator(fakeAlerter));
 	}
 	
     @Test
