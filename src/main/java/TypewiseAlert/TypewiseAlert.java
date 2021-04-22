@@ -1,21 +1,18 @@
 package main.java.TypewiseAlert;
 
-import ServiceLocator.IServiceLocator;
 import main.java.TypewiseAlert.Alerter.IAlerter;
 
 public class TypewiseAlert 
 {
-	IServiceLocator locator;
-	public TypewiseAlert(IServiceLocator locator)
+	public static Boolean isNormal = true;
+	public static BreachType inferBreach(double value, double lowerLimit, double upperLimit) 
 	{
-		this.locator = locator;
-	}
-	
-	public static BreachType inferBreach(double value, double lowerLimit, double upperLimit) {
 		if (value < lowerLimit) {
+			isNormal = false;
 			return BreachType.TOO_LOW;
 		}
 		if (value > upperLimit) {
+			isNormal = false;
 			return BreachType.TOO_HIGH;
 		}
 		return BreachType.NORMAL;
@@ -26,10 +23,10 @@ public class TypewiseAlert
 		return inferBreach(temperatureInC, coolingType.lowerLimit, coolingType.upperLimit);
 	}
 
-	public void checkAndAlert(String alertTarget, BatteryCharacter batteryChar, double temperatureInC) throws InstantiationException, IllegalAccessException, ClassNotFoundException 
+	public void checkAndAlert(IAlerter alertTarget, BatteryCharacter batteryChar, double temperatureInC)
 	{
 		BreachType breachType = classifyTemperatureBreach(batteryChar.getCoolingType(), temperatureInC);
-		((IAlerter) locator.getAleterService(alertTarget)).sendAlert(breachType);
+		alertTarget.sendAlert(breachType);
 	}
 
 }
