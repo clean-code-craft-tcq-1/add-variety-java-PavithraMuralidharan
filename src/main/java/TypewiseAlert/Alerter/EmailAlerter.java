@@ -9,7 +9,7 @@ public class EmailAlerter implements IAlerter
 	
 	@Override
 	public void sendAlert(BreachType breachType) {
-		if(!TypewiseAlert.isNormal)
+		if(Boolean.FALSE.equals(TypewiseAlert.isNormal))
 			AlertMessage.alertMessage(String.format("To: %s%n %s", recepient,breachType));
 	}
 }
