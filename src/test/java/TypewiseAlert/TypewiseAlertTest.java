@@ -10,12 +10,16 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
-import ServiceLocator.AlertServiceLocator;
 import main.java.TypewiseAlert.BatteryCharacter;
 import main.java.TypewiseAlert.BreachType;
 import main.java.TypewiseAlert.CoolingType;
 import main.java.TypewiseAlert.TypewiseAlert;
+import main.java.TypewiseAlert.Alerter.ConsoleAlerter;
+import main.java.TypewiseAlert.Alerter.ControllerAlerter;
+import main.java.TypewiseAlert.Alerter.EmailAlerter;
 import main.java.TypewiseAlert.Alerter.FakeAlerter;
+import main.java.TypewiseAlert.Alerter.IAlerter;
+import main.java.TypewiseAlert.Alerter.INotifyAlerter;
 
 @RunWith(Parameterized.class)
 public class TypewiseAlertTest 
@@ -26,6 +30,9 @@ public class TypewiseAlertTest
 	BreachType expectedResult;
 	TypewiseAlert typewiseAlert;
 	FakeAlerter fakeAlerter = new FakeAlerter();
+	double upperLimit = 30;
+	double lowerLimit = 20;
+	
 	
 	public TypewiseAlertTest(CoolingType type, double temperature, BreachType expectedResult) {
 	      this.type = type;
@@ -38,7 +45,7 @@ public class TypewiseAlertTest
 	{
 		return Arrays.asList(new Object[][]{
 	         {CoolingType.MED_ACTIVE_COOLING, 50, BreachType.TOO_HIGH},
-	         {CoolingType.HI_ACTIVE_COOLING, 44, BreachType.NORMAL},
+	         {CoolingType.HI_ACTIVE_COOLING, 25, BreachType.NORMAL},
 	         {CoolingType.PASSIVE_COOLING,-32,BreachType.TOO_LOW}
 	       });
 	}
@@ -47,13 +54,13 @@ public class TypewiseAlertTest
 	public void initialize()
 	{
 		batteryCharacter = new BatteryCharacter().setCoolingType(type);
-		typewiseAlert = new TypewiseAlert(new AlertServiceLocator(fakeAlerter));
+		typewiseAlert = new TypewiseAlert();
 	}
 	
     @Test
     public void infersBreachAsPerLimits()
     {
-      assertEquals(BreachType.TOO_LOW, TypewiseAlert.inferBreach(12, 20, 30));
+      assertEquals(expectedResult.getMessage(),TypewiseAlert.inferBreach(temperature,lowerLimit,upperLimit).getMessage());
     }
     
     @Test
@@ -63,16 +70,20 @@ public class TypewiseAlertTest
     }
     
     @Test
-    public  void checkAndAlertAsPerAlertTarget() {
-    	
-		try 
-		{
-			typewiseAlert.checkAndAlert("Fake", batteryCharacter, temperature);
-			assertEquals(expectedResult.getMessage(),fakeAlerter.getMessage());
-		}
-		catch (InstantiationException | IllegalAccessException | ClassNotFoundException e) {
-			e.printStackTrace();
-		}
+    public  void checkAndAlertAsPerAlertTarget() 
+    {
+    		typewiseAlert.checkAndAlert(fakeAlerter, batteryCharacter, temperature);
+			assertEquals(expectedResult.getMessage(),fakeAlerter.message);
     }
+    
+    public void checkAndAlertAllTarget()
+    {
+    	INotifyAlerter alertReference = new INotifyAlerter();
+    	alertReference.add(new EmailAlerter());
+    	alertReference.add(new ConsoleAlerter());
+    	alertReference.add(new ControllerAlerter());
+		IAlerter alertTargets = alertReference;
+		typewiseAlert.checkAndAlert(alertTargets,batteryCharacter, temperature);
+	}
 
 }
